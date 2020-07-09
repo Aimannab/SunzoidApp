@@ -30,7 +30,9 @@
 
 package com.raywenderlich.android.ui.home
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.android.domain.repository.WeatherRepository
 import com.raywenderlich.android.ui.home.mapper.HomeViewStateMapper
@@ -39,6 +41,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 private const val SEARCH_DELAY_MILLIS = 500L
@@ -52,6 +55,18 @@ class HomeViewModel(
 ) : ViewModel() {
 
   val queryChannel = BroadcastChannel<String>(Channel.CONFLATED)
+
+  //LiveData preferred here rather than Flow for communicating between view and view model
+  //This is because LiveData has internal lifecycle handling
+  val forecast: LiveData<List<ForecastViewState>> = weatherRepository
+    //referencing weatherRepository to get flow of forecast data
+    .getForecast()
+    //Converts domain models to th ForecastViewState model
+    .map {
+      homeViewStateMapper.mapForecastsToViewState(it)
+    }
+    //Converts Flow to LiveData
+    .asLiveData()
 
   private suspend fun getLocations(query: String): List<LocationViewState> {
     val locations = viewModelScope.async { weatherRepository.findLocation(query) }

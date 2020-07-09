@@ -36,6 +36,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.raywenderlich.android.data.db.entities.DbForecast
 import com.raywenderlich.android.data.db.entities.DbLocationDetails
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ForecastDao {
@@ -66,4 +67,8 @@ interface ForecastDao {
 
   @Query("SELECT * FROM location_details_table")
   suspend fun getLocationDetails(): DbLocationDetails?
+
+  //Whenever data changes in the table, the query executes again and Flow emits a fresh data
+  @Query("SELECT * from forecasts_table")
+  fun getForecasts(): Flow<List<DbForecast>>
 }
