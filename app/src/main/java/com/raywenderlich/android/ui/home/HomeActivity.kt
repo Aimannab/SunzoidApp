@@ -59,6 +59,8 @@ class HomeActivity : AppCompatActivity() {
     setContentView(R.layout.activity_home)
 
     initUi()
+    //Fetch forecast data and save it in Room
+    homeViewModel.fetchLocationDetails(851128)
   }
 
   private fun initUi() {
