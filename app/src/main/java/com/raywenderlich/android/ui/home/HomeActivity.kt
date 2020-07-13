@@ -61,7 +61,7 @@ class HomeActivity : AppCompatActivity() {
 
     initUi()
     //Fetch forecast data and save it in Room
-    homeViewModel.fetchLocationDetails(851128)
+    //homeViewModel.fetchLocationDetails(851128)
   }
 
   private fun initUi() {
@@ -103,6 +103,12 @@ class HomeActivity : AppCompatActivity() {
     //in the UI
     homeViewModel.forecasts.observe(this, Observer {
       forecastAdapter.setData(it)
+    })
+    //Flow collection starts/cancels when LiveData becomes active/inactive
+    //Default delay triggering cancellation for LiveData is 5000 mills, can be customized
+
+    homeViewModel.locations.observe(this, Observer {
+      locationAdapter.setData(it)
     })
   }
 

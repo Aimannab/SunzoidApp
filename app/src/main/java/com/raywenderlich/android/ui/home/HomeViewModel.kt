@@ -41,7 +41,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 private const val SEARCH_DELAY_MILLIS = 500L
@@ -55,6 +55,30 @@ class HomeViewModel(
 ) : ViewModel() {
 
   val queryChannel = BroadcastChannel<String>(Channel.CONFLATED)
+
+  private val _locations = queryChannel
+    //The call to asFlow() converts the channel to Flow
+    .asFlow()
+    //Waits for values to stop arriving for a given time period
+    //To avoid processing every single letter a user types
+    //Performs the API call only after 500 mills have passed with no typing
+    .debounce(SEARCH_DELAY_MILLIS)
+    //Performs the latest API call and returns location results
+    //Cancels the previous API call in progress if new value is emitted while waiting for it
+    .mapLatest {
+      //Performs API call only if the search query contains at least 2 characters
+      if (it.length >= MIN_QUERY_LENGTH) {
+        getLocations(it)
+      } else {
+        emptyList()
+      }
+    }
+    .catch {
+      //log error
+    }
+
+  //Collect values from the origin flow and transform them to LiveData instance
+  val locations = _locations.asLiveData()
 
   //LiveData preferred here rather than Flow for communicating between view and view model
   //This is because LiveData has internal lifecycle handling
