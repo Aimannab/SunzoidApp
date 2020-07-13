@@ -33,6 +33,7 @@ package com.raywenderlich.android.ui.home
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -98,6 +99,11 @@ class HomeActivity : AppCompatActivity() {
   }
 
   private fun initObservers() {
+    //Whenever forecasts change in the DB, new data will be received in the Observer and displayed
+    //in the UI
+    homeViewModel.forecasts.observe(this, Observer {
+      forecastAdapter.setData(it)
+    })
   }
 
   private fun onLocationClick(locationViewState: LocationViewState) {

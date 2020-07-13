@@ -58,10 +58,10 @@ class HomeViewModel(
 
   //LiveData preferred here rather than Flow for communicating between view and view model
   //This is because LiveData has internal lifecycle handling
-  val forecast: LiveData<List<ForecastViewState>> = weatherRepository
+  val forecasts: LiveData<List<ForecastViewState>> = weatherRepository
     //referencing weatherRepository to get flow of forecast data
     .getForecast()
-    //Converts domain models to th ForecastViewState model
+    //Converts domain models to th ForecastViewState model, which is ready for rendering
     .map {
       homeViewStateMapper.mapForecastsToViewState(it)
     }
